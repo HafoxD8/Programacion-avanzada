@@ -1,5 +1,4 @@
-#include <iostream>
-using namespace std;
+#include <stdio.h>
 
 // Programa: Cálculo de resistencia total en paralelo
 // Autores: Cruz Molina Hafid
@@ -8,12 +7,13 @@ using namespace std;
 //          Reyes Casanova Luis Khaled
 //          Yáñez Mancilla Jesús Osvaldo
 // Versión: 1.0.0
+// Changelog modificado por Méndez García Frank Asael
 // Descripción: Calcular la resistencia total con 2 resistencias en paralelo
 
 int main() {
     int R1 = 6;
     int R2 = 8;
     int RT = R1 + R2;
-    cout << "La resistencia total es: " << RT << endl;
+    printf("La resistencia total es: %d\n", RT);
     return 0;
 }
