@@ -1,11 +1,11 @@
-//Programa: Cálculo de resistencia total
+//Programa: CÃ¡lculo de resistencia total
 //Autores: Cruz Molina Hafid
-//         Hernández Fuentes Nazario
-//         Méndez García Frank Asael
+//         HernÃ¡ndez Fuentes Nazario
+//         MÃ©ndez GarcÃ­a Frank Asael
 //         Reyes Casanova Luis Khaled
-//         Yáñez Mancilla Jesús Osvaldo
-//Versión: 1.0.1 - Corregido por: REYES CASANOVA LUIS KHALED
-//Cambio: Se corrige el cálculo de resistencia en paralelo
+//         YÃ¡Ã±ez Mancilla JesÃºs Osvaldo
+//VersiÃ³n: 1.0.1 â€“ 2026-02-28 â€“ Reyes Casanova Luis Khaled - Version del codigo inicial 1.0.1 de python en C++.
+//Cambio: Se corrige el cÃ¡lculo de resistencia en paralelo
 
 #include <stdio.h>
 int main() {
@@ -15,3 +15,4 @@ int main() {
     printf("La resistencia total es: %.2f\n", RT);
     return 0;
 }
+
