@@ -1,0 +1,34 @@
+#include <iostream>
+
+using namespace std;
+
+/**
+ * Programa: Cálculo de resistencia total
+ * Autores: Cruz Molina Hafid
+ * Hernández Fuentes Nazario
+ * Méndez García Frank Asael
+ * Reyes Casanova Luis Khaled
+ * Yáñez Mancilla Jesús Osvaldo
+ * Versión: 1.2.0 (Portado a C++)
+ */
+
+int main() {
+    float R1, R2, RT;
+
+    cout << "Valor de R1: ";
+    cin >> R1;
+
+    cout << "Valor de R2: ";
+    cin >> R2;
+
+    // Validación de datos según la lógica del script original
+    if ((R1 + R2) <= 0 || R1 < 0 || R2 < 0) {
+        cout << "Error: los valores deben ser positivos" << endl;
+    } else {
+        // Cálculo de resistencia en paralelo: (R1 * R2) / (R1 + R2)
+        RT = (R1 * R2) / (R1 + R2);
+        cout << "La resistencia total es: " << RT << endl;
+    }
+
+    return 0;
+}
