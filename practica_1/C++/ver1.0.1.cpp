@@ -1,11 +1,11 @@
-//Programa: C·lculo de resistencia total
+//Programa: C√°lculo de resistencia total
 //Autores: Cruz Molina Hafid
-//         Hern·ndez Fuentes Nazario
-//         MÈndez GarcÌa Frank Asael
+//         Hern√°ndez Fuentes Nazario
+//         M√©ndez Garc√≠a Frank Asael
 //         Reyes Casanova Luis Khaled
-//         Y·Òez Mancilla Jes˙s Osvaldo
-//VersiÛn: 1.0.1 - Corregido por: REYES CASANOVA LUIS KHALED
-//Cambio: Se corrige el c·lculo de resistencia en paralelo
+//         Y√°√±ez Mancilla Jes√∫s Osvaldo
+//Versi√≥n: 1.0.1 - Corregido por: REYES CASANOVA LUIS KHALED
+//Cambio: Se corrige el c√°lculo de resistencia en paralelo
 
 #include <stdio.h>
 int main() {
