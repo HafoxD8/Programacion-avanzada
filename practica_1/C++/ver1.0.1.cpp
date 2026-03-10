@@ -1,17 +1,34 @@
-//Programa: CÃ¡lculo de resistencia total
-//Autores: Cruz Molina Hafid
-//         HernÃ¡ndez Fuentes Nazario
-//         MÃ©ndez GarcÃ­a Frank Asael
-//         Reyes Casanova Luis Khaled
-//         YÃ¡Ã±ez Mancilla JesÃºs Osvaldo
-//VersiÃ³n: 1.0.1 - Corregido por: REYES CASANOVA LUIS KHALED
-//Cambio: Se corrige el cÃ¡lculo de resistencia en paralelo
+# Programa: Cálculo de resistencia total
+# Autores: Cruz Molina Hafid
+#          Hernández Fuentes Nazario
+#          Méndez García Frank Asael
+#          Reyes Casanova Luis Khaled
+#          Yáñez Mancilla Jesús Osvaldo
+# Versión: 1.2.0 - Corregido por:Nazario Hernandez Fuentes
+# Cambio: Se agrega validación de datos
 
-#include <stdio.h>
+#include <iostream>
+#include <iomanip>
+
+using namespace std;
 int main() {
-    float R1 = 6;
-    float R2 = 8;
-    float RT = (R1 * R2) / (R1 + R2);
-    printf("La resistencia total es: %.2f\n", RT);
+    double r1, r2, rt;
+    cout << "--- Calculadora de Resistencias en Paralelo ---" << endl;
+    do {
+        cout << "Ingrese el valor de R1 (Ohms): ";
+        cin >> r1;
+        cout << "Ingrese el valor de R2 (Ohms): ";
+        cin >> r2;
+
+        if (r1 <= 0 || r2 <= 0) {
+            cout << "Error: Los valores deben ser mayores a cero. Intente de nuevo.\n" << endl;
+        }
+    } while (r1 <= 0 || r2 <= 0);
+
+    rt = (r1 * r2) / (r1 + r2);
+
+    cout << fixed << setprecision(2);
+    cout << "\nLa resistencia total (RT) es: " << rt << " Ohms" << endl;
+
     return 0;
 }
