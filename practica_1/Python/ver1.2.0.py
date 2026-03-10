@@ -16,4 +16,5 @@ else:
     print("La resistencia total es: ", RT)
     
     
+
     
