@@ -1,11 +1,11 @@
-# Programa: Cálculo de resistencia total
-# Autores: Cruz Molina Hafid
-#          Hernández Fuentes Nazario
-#          Méndez García Frank Asael
-#          Reyes Casanova Luis Khaled
-#          Yáñez Mancilla Jesús Osvaldo
-# Versión: 1.2.0 - Corregido por:Nazario Hernandez Fuentes
-# Cambio: Se agrega validación de datos
+// Programa: Cálculo de resistencia total
+// Autores: Cruz Molina Hafid
+//          Hernández Fuentes Nazario
+//          Méndez García Frank Asael
+//          Reyes Casanova Luis Khaled
+//          Yáñez Mancilla Jesús Osvaldo
+// Versión: 1.2.0 - Corregido por:Nazario Hernandez Fuentes
+// Cambio: Se agrega validación de datos
 
 #include <iostream>
 #include <iomanip>
@@ -28,8 +28,7 @@ int main() {
     rt = (r1 * r2) / (r1 + r2);
 
     cout << fixed << setprecision(2);
-    cout << "\nLa resistencia total (RT) es: " << rt << " Ohms" << endl;
+    cout << "La resistencia total (RT) es: " << rt << " Ohms" << endl;
 
     return 0;
 }
-
