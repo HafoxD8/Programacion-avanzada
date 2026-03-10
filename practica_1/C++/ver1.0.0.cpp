@@ -15,4 +15,5 @@ int main() {
     int RT = R1 + R2;
     printf("La resistencia total es: %d\n", RT);
     return 0;
+
 }
