@@ -1,11 +1,11 @@
-//Programa: Cálculo de resistencia total
+//Programa: CÃ¡lculo de resistencia total
 //Autores: Cruz Molina Hafid
-//         Hernández Fuentes Nazario
-//         Méndez García Frank Asael
+//         HernÃ¡ndez Fuentes Nazario
+//         MÃ©ndez GarcÃ­a Frank Asael
 //         Reyes Casanova Luis Khaled
-//         Yáñez Mancilla Jesús Osvaldo
-//Versión: 1.1.0 - Corregido por: Yáñez Mancilla Jesús Osvaldo
-//Cambio: Se agrega entrada en de valores por teclado y se cambia a lenguaje C
+//         YÃ¡Ã±ez Mancilla JesÃºs Osvaldo
+//VersiÃ³n: 1.1.0 - Corregido por: YÃ¡Ã±ez Mancilla JesÃºs Osvaldo
+//Cambio: Se agrega entrada de valores por teclado y se cambia a lenguaje C
 
 #include <stdio.h>
 int main(){
@@ -23,3 +23,4 @@ return 0;
 
 
 }
+
