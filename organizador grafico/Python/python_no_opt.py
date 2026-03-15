@@ -1,4 +1,4 @@
-#python_no_opt.py , Versión: 1.1.0 , REYES CASANOVA LUIS KHALED , 12/03/2026 , Se uso un diccionario temporal para conteo eficiente O(n)  
+#python_no_opt.py , Versión: 1.2.0 , Cruz Molina Hafid , 14/03/2026 , Se uso un diccionario para optimizar el conteo a complejidad lineal O(n). 
 #Entrada esperada: Una lista de enteros (ej. [3, -1, 0, 5, -7, 0, 2, 3, 3, -1, 5, 5, 5])
 #Salida esperada: Frecuencias, el valor modal, su cuenta y la suma de sus dígitos.
 
@@ -23,25 +23,17 @@ for val in numeros: # MOD: v1.1.0
 frecuencias = list(temp_frecuencias.items()) # MOD: v1.1.0
 # -------------------------
 
-# Encontrar el valor modal (mayor cuenta). Si hay empate, se elige el primero encontrado.
-modo = None
-max_cuenta = -1
-for pair in frecuencias:
-    v = pair[0]
-    c = pair[1]
-    if c > max_cuenta:
-        max_cuenta = c
-        modo = v
-    else:
-        # rama extra para if anidado
-        if c == max_cuenta:
-            # mantener el primero (no hacer nada)
-            pass
+# --- BLOQUE MODIFICADO: v1.2.0 ---
+# Encontrar el valor modal (mayor cuenta) de forma eficiente usando el diccionario previo
+# Utilizamos la función max sobre el diccionario para obtener la llave con el valor más alto
+modo = max(temp_frecuencias, key=temp_frecuencias.get) # MOD: v1.1.1 — Búsqueda O(n) directa
+# Asignamos la cuenta máxima accediendo directamente al diccionario con el modo encontrado
+max_cuenta = temp_frecuencias[modo] # MOD: v1.2.0 — Acceso directo al valor
+# -------------------------
 
 # Sumar dígitos del valor modal (manejo de negativos)
-x = modo
-if x < 0:
-    x = -x
+# Optimizamos la conversión a positivo usando la función integrada abs()
+x = abs(modo) # MOD: v1.2.0 — Simplificación de manejo de negativos
 
 # sumar dígitos con while
 suma_digitos = 0
