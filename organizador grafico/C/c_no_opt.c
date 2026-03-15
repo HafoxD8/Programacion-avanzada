@@ -1,20 +1,20 @@
 #include <stdio.h>
 
 /**
- * Versi髇: 1.3.0 (Optimizaci髇 M醲ima de Ciclos)
- * Autor: M閚dez Garc韆 Frank Asael (Refactorizado)
- * Descripci髇: C醠culo de primos con salida directa a CSV.
+ * Versi贸n: 1.4.0 (Optimizaci贸n M谩xima de Ciclos)
+ * Autor: Nazario Hernandez Fuentes (Refactorizado)
+ * Descripci贸n: C谩lculo de primos con salida directa a CSV.
  */
 
 int main() {
-    // Bloque 1: Configuraci髇
+    // Bloque 1: Configuraci贸n
     int N = 1000;
     int count_primos = 0;
     long long suma_primos = 0;
     int primos_pares = 0;
     int primos_impares = 0;
 
-    // Bloque especial: El 鷑ico primo par es 2
+    // Bloque especial: El 煤nico primo par es 2
     if (N >= 2) {
         count_primos++;
         suma_primos += 2;
@@ -22,7 +22,7 @@ int main() {
     }
 
     // Bloque 2: Bucle principal optimizado
-    // Usamos m*m <= N en la l骻ica interna para evitar divisiones repetidas
+    // Usamos m*m <= N en la l贸gica interna para evitar divisiones repetidas
     for (int m = 3; m <= N; m += 2) {
         int es_primo = 1;
 
@@ -40,7 +40,7 @@ int main() {
         }
     }
 
-    // Bloque 3: Generaci髇 del archivo CSV
+    // Bloque 3: Generaci贸n del archivo CSV
     FILE *fp = fopen("reporte_primos.csv", "w");
     if (fp == NULL) {
         printf("Error al crear el archivo.\n");
@@ -57,7 +57,7 @@ int main() {
 
     fclose(fp);
 
-    // Bloque 4: Confirmaci髇 en consola
+    // Bloque 4: Confirmaci贸n en consola
     printf("Archivo 'reporte_primos.csv' generado con exito.\n");
     printf("------------------------------------------\n");
     printf("Resumen: %d primos encontrados.\n", count_primos);
