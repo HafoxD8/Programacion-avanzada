@@ -1,7 +1,7 @@
 #include <stdio.h>
 
 /**
- * Versión: 1.4.0 (Optimización Máxima de Ciclos)
+ * Versión: 1.3.0 (Optimización Máxima de Ciclos)
  * Autor: Nazario Hernandez Fuentes (Refactorizado)
  * Descripción: Cálculo de primos con salida directa a CSV.
  */
