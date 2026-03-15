@@ -1,68 +1,66 @@
-/* c_no_opt.c
-
-   Versi贸n: 1.2.0
-   Autor: M茅ndez Garc铆a Frank Asael
-   Fecha: 13/03/2026
-   Descripci贸n: Programa en C que calcula n煤meros primos hasta N,
-                cuenta cu谩ntos hay, suma sus valores y clasifica
-                en pares e impares.
-                Cambios respecto a la versi贸n 1.1.0:
-                Se evita evaluar n煤meros pares en el bucle principal.
-                Se trata el n煤mero 2 de forma directa antes del bucle.
-                Se simplifican incrementos usando ++.
-                Se elimina un bloque else innecesario.
-   Entrada: valor entero N (ejemplo: 1000)
-   Salida: cantidad de primos, suma total, primos pares e impares
-*/
-
-
 #include <stdio.h>
 
+/**
+ * Versi髇: 1.3.0 (Optimizaci髇 M醲ima de Ciclos)
+ * Autor: M閚dez Garc韆 Frank Asael (Refactorizado)
+ * Descripci髇: C醠culo de primos con salida directa a CSV.
+ */
+
 int main() {
-    /* Bloque 1: Inicializaci贸n de variables */
-    // # MOD: v1.1.0 actualizaci贸n en variables
+    // Bloque 1: Configuraci髇
     int N = 1000;
     int count_primos = 0;
     long long suma_primos = 0;
     int primos_pares = 0;
     int primos_impares = 0;
-    int m;
-    int d;
-    int es_primo;
 
-    /* Bloque especial: considerar el 2 directamente */
+    // Bloque especial: El 鷑ico primo par es 2
     if (N >= 2) {
         count_primos++;
         suma_primos += 2;
         primos_pares++;
     }
 
-    /* Bloque 2: Bucle principal para iterar candidatos */
-    for (m = 3; m <= N; m += 2) {  // solo n煤meros impares
-        es_primo = 1;  // asumimos primo hasta demostrar lo contrario
+    // Bloque 2: Bucle principal optimizado
+    // Usamos m*m <= N en la l骻ica interna para evitar divisiones repetidas
+    for (int m = 3; m <= N; m += 2) {
+        int es_primo = 1;
 
-        /* Bloque 2 optimizado: Verificaci贸n de primalidad */
-        // # MOD: v1.1.0   optimizaci贸n respecto al c贸digo original
-        for (d = 3; d <= m / d; d += 2) { // condici贸n equivalente a d*d <= m
+        for (int d = 3; d * d <= m; d += 2) {
             if (m % d == 0) {
-                es_primo = 0;  // encontrado divisor ? no es primo
-                break;         // salir del bucle
+                es_primo = 0;
+                break;
             }
         }
 
-        /* Bloque 3:Contadores y acumuladores */
         if (es_primo) {
-            ++count_primos;
+            count_primos++;
             suma_primos += m;
-            ++primos_impares;   // todos aqu铆 son impares
+            primos_impares++;
         }
     }
 
-    /* Bloque 4: Salida de resultados */
-    printf("Primos encontrados: %d\n", count_primos);
-    printf("Suma de primos: %lld\n", suma_primos);
-    printf("Primos pares: %d\n", primos_pares);
-    printf("Primos impares: %d\n", primos_impares);
+    // Bloque 3: Generaci髇 del archivo CSV
+    FILE *fp = fopen("reporte_primos.csv", "w");
+    if (fp == NULL) {
+        printf("Error al crear el archivo.\n");
+        return 1;
+    }
+
+    // Escribimos los encabezados y los datos
+    fprintf(fp, "Parametro,Valor\n");
+    fprintf(fp, "Limite N,%d\n", N);
+    fprintf(fp, "Total Primos,%d\n", count_primos);
+    fprintf(fp, "Suma Total,%lld\n", suma_primos);
+    fprintf(fp, "Primos Pares,%d\n", primos_pares);
+    fprintf(fp, "Primos Impares,%d\n", primos_impares);
+
+    fclose(fp);
+
+    // Bloque 4: Confirmaci髇 en consola
+    printf("Archivo 'reporte_primos.csv' generado con exito.\n");
+    printf("------------------------------------------\n");
+    printf("Resumen: %d primos encontrados.\n", count_primos);
 
     return 0;
 }
