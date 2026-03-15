@@ -1,4 +1,4 @@
-#python_no_opt.py , Versión: 1.2.0 , Cruz Molina Hafid , 14/03/2026 , Se uso un diccionario temporal para conteo eficiente O(n)  
+#python_no_opt.py , Versión: 1.2.0 , Cruz Molina Hafid , 14/03/2026 , Se uso un diccionario para optimizar el conteo a complejidad lineal O(n). 
 #Entrada esperada: Una lista de enteros (ej. [3, -1, 0, 5, -7, 0, 2, 3, 3, -1, 5, 5, 5])
 #Salida esperada: Frecuencias, el valor modal, su cuenta y la suma de sus dígitos.
 
