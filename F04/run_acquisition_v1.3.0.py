@@ -2,16 +2,16 @@
 # -*- coding: utf-8 -*-
 """
 run_acquisition.py
+Versión: 1.3.0
 Proyecto de ejemplo: adquisición de lecturas de temperatura y LDR durante 1 minuto,
 guardado en CSV y generación de una gráfica.
 Autor: Jesús Osvaldo Yáñez Mancilla
-Versión: 1.2.0
 
-Cambios en v1.2.0:
-- Mejora A1: filtrado por media móvil y calibración con offset inicial.
-- Mejora A2: filtrado por mediana deslizante y normalización de rango [0–1].
-- CSV extendido con columnas crudas, filtradas, medianas y normalizadas.
-- Corrección en save_environment: uso de matplotlib.__version__ en lugar de plt.__version__.
+Cambios en v1.3.0:
+- Mejora A1: media móvil + offset inicial.
+- Mejora A2: mediana deslizante + normalización.
+- Mejora A3: suavizado exponencial adaptativo (EMA).
+- CSV extendido con columnas crudas, filtradas, medianas, normalizadas y EMA.
 """
 
 import argparse
@@ -196,15 +196,35 @@ def normalize(values, min_val=None, max_val=None):
             norm.append(float("nan"))
     return norm
 
+def exponential_moving_average(values, alpha=0.2):
+    """
+    Suavizado exponencial adaptativo (EMA).
+    alpha: factor de suavizado (0 < alpha <= 1).
+    """
+    ema = []
+    prev = None
+    for v in values:
+        if isinstance(v, (int, float)) and not (isinstance(v, float) and (v != v)):
+            if prev is None:
+                prev = v
+            else:
+                prev = alpha * v + (1 - alpha) * prev
+            ema.append(round(prev, 3))
+        else:
+            ema.append(float("nan"))
+    return ema
+
 # -------------------------
 # Guardado CSV y metadata
 # -------------------------
 def save_csv(readings, csv_path, temps_filt=None, ldrs_filt=None,
-             temps_med=None, ldrs_med=None, temps_norm=None, ldrs_norm=None):
+             temps_med=None, ldrs_med=None, temps_norm=None, ldrs_norm=None,
+             temps_ema=None, ldrs_ema=None):
     header = ["timestamp", "temp_raw", "ldr_raw",
               "temp_filt", "ldr_filt",
               "temp_med", "ldr_med",
-              "temp_norm", "ldr_norm"]
+              "temp_norm", "ldr_norm",
+              "temp_ema", "ldr_ema"]
     lines = [",".join(header) + "\n"]
 
     for i, (ts, temp, ldr) in enumerate(readings):
@@ -216,7 +236,9 @@ def save_csv(readings, csv_path, temps_filt=None, ldrs_filt=None,
         ldr_med_str = str(ldrs_med[i]) if ldrs_med else ""
         temp_norm_str = str(temps_norm[i]) if temps_norm else ""
         ldr_norm_str = str(ldrs_norm[i]) if ldrs_norm else ""
-        lines.append(f"{ts},{temp_str},{ldr_str},{temp_filt_str},{ldr_filt_str},{temp_med_str},{ldr_med_str},{temp_norm_str},{ldr_norm_str}\n")
+        temp_ema_str = str(temps_ema[i]) if temps_ema else ""
+        ldr_ema_str = str(ldrs_ema[i]) if ldrs_ema else ""
+        lines.append(f"{ts},{temp_str},{ldr_str},{temp_filt_str},{ldr_filt_str},{temp_med_str},{ldr_med_str},{temp_norm_str},{ldr_norm_str},{temp_ema_str},{ldr_ema_str}\n")
 
     text = "".join(lines)
     safe_write_atomic(csv_path, text)
@@ -319,7 +341,7 @@ def main():
         "duration_seconds": args.duration,
         "sample_interval_s": args.interval,
         "script": os.path.basename(__file__),
-        "version": "1.2.0"
+        "version": "1.3.0"
     }
 
     save_environment(os.path.join(RESULTS_DIR, "environment.txt"))
@@ -349,15 +371,20 @@ def main():
     temps_norm = normalize(temps_cal)
     ldrs_norm = normalize(ldrs_cal)
 
-    stats_temp = compute_basic_stats(temps_norm)
-    stats_ldr = compute_basic_stats(ldrs_norm)
+    # Suavizado exponencial (EMA)
+    temps_ema = exponential_moving_average(temps_cal, alpha=0.2)
+    ldrs_ema = exponential_moving_average(ldrs_cal, alpha=0.2)
+
+    stats_temp = compute_basic_stats(temps_ema)
+    stats_ldr = compute_basic_stats(ldrs_ema)
 
     csv_path = os.path.join(RESULTS_DIR, "raw_readings.csv")
     metadata_path = os.path.join(RESULTS_DIR, "metadata.json")
     save_csv(readings, csv_path,
              temps_filt=temps_filt, ldrs_filt=ldrs_filt,
              temps_med=temps_med, ldrs_med=ldrs_med,
-             temps_norm=temps_norm, ldrs_norm=ldrs_norm)
+             temps_norm=temps_norm, ldrs_norm=ldrs_norm,
+             temps_ema=temps_ema, ldrs_ema=ldrs_ema)
     save_metadata(config, stats_temp, stats_ldr, metadata_path)
 
     plot_path = os.path.join(RESULTS_DIR, "plot.png")
@@ -365,8 +392,8 @@ def main():
 
     print("\n--- Resumen ---")
     print(f"Muestras: {len(readings)}")
-    print("Estadísticas Temperatura (normalizada):", stats_temp)
-    print("Estadísticas LDR (normalizada):", stats_ldr)
+    print("Estadísticas Temperatura (EMA):", stats_temp)
+    print("Estadísticas LDR (EMA):", stats_ldr)
     print(f"Archivos generados en: {RESULTS_DIR}/")
     print("----------------\n")
 
