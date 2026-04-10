@@ -4,27 +4,16 @@
 run_acquisition.py
 Proyecto de ejemplo: adquisición de lecturas de temperatura y LDR durante 1 minuto,
 guardado en CSV y generación de una gráfica.
-Autor: (Tu nombre)
-Versión: 1.0.1
+Autor: Jesús Osvaldo Yáñez Mancilla
+Versión: 1.1.0
 
-Cambios en v1.0.1:
-- Corregido bug: uso incorrecto de `random.sin(...)`. La función trigonométrica
-  pertenece al módulo `math`, no a `random`. Se importó `math` y se reemplazó
-  `random.sin` por `math.sin`.
-- Actualizado docstring y metadata de versión.
-- Pequeña nota de registro: este cambio evita el error
-  "module 'random' has no attribute 'sin'".
-
-Uso:
-    # Modo simulación (no requiere hardware)
-    python src/run_acquisition.py --mode sim
-
-    # Modo serial (leer desde puerto serie, requiere sketch en Wokwi o Arduino)
-    python src/run_acquisition.py --mode serial --port COM3 --baud 115200
+Cambios en v1.1.0:
+- Corrección en save_environment: uso de matplotlib.__version__ en lugar de plt.__version__.
+- Implementación de Mejora A: filtrado por media móvil y calibración con offset inicial.
+- CSV extendido con columnas crudas y filtradas.
 """
 
 import argparse
-import csv
 import json
 import os
 import sys
@@ -38,6 +27,7 @@ import tempfile
 # Dependencias opcionales para graficar
 try:
     import matplotlib.pyplot as plt
+    import matplotlib
     import numpy as np
 except Exception:
     plt = None
@@ -54,20 +44,12 @@ RESULTS_DIR = "results"
 # Utilidades
 # -------------------------
 def iso_now_utc():
-    """Devuelve timestamp ISO 8601 en UTC (ej: 2026-03-24T09:00:00Z)."""
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
-
 def ensure_results_dir():
-    """Crea la carpeta results si no existe."""
     os.makedirs(RESULTS_DIR, exist_ok=True)
 
-
 def safe_write_atomic(path, text, mode="w", encoding="utf-8"):
-    """
-    Escribe de forma atómica: escribe en archivo temporal y renombra.
-    Evita archivos CSV corruptos si el proceso se interrumpe.
-    """
     dirpath = os.path.dirname(path) or "."
     fd, tmp_path = tempfile.mkstemp(dir=dirpath, prefix=".tmp_")
     try:
@@ -75,68 +57,40 @@ def safe_write_atomic(path, text, mode="w", encoding="utf-8"):
             f.write(text)
         os.replace(tmp_path, path)
     except Exception:
-        # Si falla, intentar eliminar temporal
         try:
             os.remove(tmp_path)
         except Exception:
             pass
         raise
 
-
 # -------------------------
 # Simulación y lectura
 # -------------------------
 def simulate_reading(t_seconds):
-    """
-    Genera una lectura simulada de temperatura y LDR.
-    t_seconds: tiempo transcurrido desde inicio (s) para modelar tendencias.
-    Retorna (temp_c, ldr_raw)
-
-    Nota sobre el bug corregido:
-    - En versiones anteriores se usó `random.sin(...)`, lo cual provocaba:
-      "module 'random' has no attribute 'sin'".
-    - La función trigonométrica correcta es `math.sin(...)`. Aquí se usa `math`.
-    """
-    # Temperatura base con ligera deriva y ruido
-    temp_base = 22.0 + 0.01 * (t_seconds / 1.0)  # deriva muy lenta
-    temp_noise = random.gauss(0, 0.2)            # ruido gaussiano
+    temp_base = 22.0 + 0.01 * (t_seconds / 1.0)
+    temp_noise = random.gauss(0, 0.2)
     temp = temp_base + temp_noise
 
-    # LDR simulado: valor ADC 0-1023 con variaciones y picos ocasionales
-    # Usar math.sin en lugar de random.sin (corrección v1.0.1)
     ldr_base = 400 + 50 * (0.5 * (1 + math.sin(t_seconds / 5.0)))
     ldr_noise = random.gauss(0, 10)
-    # ocasional pico de luz
     if random.random() < 0.02:
         ldr_noise += random.uniform(100, 300)
     ldr = int(max(0, min(1023, ldr_base + ldr_noise)))
 
     return round(temp, 2), ldr
 
-
 def parse_serial_line(line):
-    """
-    Parsea una línea proveniente del serial.
-    Se espera formato: temp,ldr  (ej: "23.5,512")
-    Devuelve (temp_float, ldr_int) o lanza ValueError.
-    """
     parts = line.strip().split(",")
     if len(parts) < 2:
-        raise ValueError("Formato inválido, se esperaban dos valores separados por coma")
+        raise ValueError("Formato inválido")
     temp = float(parts[0])
     ldr = int(float(parts[1]))
     return round(temp, 2), ldr
-
 
 # -------------------------
 # Adquisición
 # -------------------------
 def acquire_data(mode="sim", port=None, baud=115200, duration_seconds=DEFAULT_DURATION, sample_interval_s=DEFAULT_INTERVAL):
-    """
-    Ejecuta la adquisición de datos.
-    mode: "sim" o "serial"
-    Retorna lista de tuplas: (timestamp_iso, temp, ldr)
-    """
     readings = []
     start_time = time.time()
     elapsed = 0.0
@@ -187,16 +141,10 @@ def acquire_data(mode="sim", port=None, baud=115200, duration_seconds=DEFAULT_DU
     print(f"[INFO] Adquisición finalizada: muestras={sample_count}, errores={errors}")
     return readings
 
-
 # -------------------------
 # Procesamiento y estadísticas
 # -------------------------
 def compute_basic_stats(values):
-    """
-    Calcula estadísticas básicas (mean, min, max, std) ignorando NaN.
-    values: lista de números (puede contener float('nan')).
-    Retorna diccionario con keys: mean, min, max, std, count
-    """
     clean = [v for v in values if isinstance(v, (int, float)) and not (isinstance(v, float) and (v != v))]
     if not clean:
         return {"mean": None, "min": None, "max": None, "std": None, "count": 0}
@@ -208,31 +156,36 @@ def compute_basic_stats(values):
         "count": len(clean)
     }
 
+def moving_average_filter(values, window_size=5):
+    filt = []
+    for i in range(len(values)):
+        window = values[max(0, i - window_size + 1): i + 1]
+        clean = [v for v in window if isinstance(v, (int, float)) and not (isinstance(v, float) and (v != v))]
+        if clean:
+            filt.append(round(statistics.mean(clean), 3))
+        else:
+            filt.append(float("nan"))
+    return filt
 
 # -------------------------
 # Guardado CSV y metadata
 # -------------------------
-def save_csv(readings, csv_path):
-    """
-    Guarda readings en CSV con encabezado.
-    readings: lista de tuplas (timestamp_iso, temp, ldr)
-    Implementa escritura atómica.
-    """
-    header = ["timestamp", "temp_raw", "ldr_raw"]
+def save_csv(readings, csv_path, temps_filt=None, ldrs_filt=None):
+    header = ["timestamp", "temp_raw", "ldr_raw", "temp_filt", "ldr_filt"]
     lines = [",".join(header) + "\n"]
-    for ts, temp, ldr in readings:
+
+    for i, (ts, temp, ldr) in enumerate(readings):
         temp_str = "" if (isinstance(temp, float) and temp != temp) else str(temp)
         ldr_str = "" if ldr == -1 else str(ldr)
-        lines.append(f"{ts},{temp_str},{ldr_str}\n")
+        temp_filt_str = str(temps_filt[i]) if temps_filt else ""
+        ldr_filt_str = str(ldrs_filt[i]) if ldrs_filt else ""
+        lines.append(f"{ts},{temp_str},{ldr_str},{temp_filt_str},{ldr_filt_str}\n")
+
     text = "".join(lines)
     safe_write_atomic(csv_path, text)
     print(f"[INFO] CSV guardado en {csv_path}")
 
-
 def save_metadata(config, stats_temp, stats_ldr, metadata_path):
-    """
-    Guarda metadata en JSON (config + stats).
-    """
     payload = {
         "timestamp": iso_now_utc(),
         "config": config,
@@ -244,16 +197,12 @@ def save_metadata(config, stats_temp, stats_ldr, metadata_path):
     safe_write_atomic(metadata_path, json.dumps(payload, indent=2))
     print(f"[INFO] Metadata guardada en {metadata_path}")
 
-
 def save_environment(env_path):
-    """
-    Guarda información básica del entorno en results/environment.txt
-    """
     try:
         py_ver = sys.version.replace("\n", " ")
         libs = {}
         if plt is not None:
-            libs["matplotlib"] = plt.__version__
+            libs["matplotlib"] = matplotlib.__version__
         if np is not None:
             libs["numpy"] = np.__version__
         text = f"timestamp: {iso_now_utc()}\npython: {py_ver}\n"
@@ -264,18 +213,12 @@ def save_environment(env_path):
     except Exception as e:
         print(f"[WARN] No se pudo guardar environment.txt: {e}", file=sys.stderr)
 
-
 # -------------------------
 # Graficado
 # -------------------------
 def plot_readings(readings, plot_path):
-    """
-    Genera una gráfica con temperatura y LDR en función del tiempo.
-    Guarda en plot_path (PNG).
-    Requiere matplotlib; si no está disponible, imprime advertencia.
-    """
     if plt is None or np is None:
-        print("[WARN] matplotlib o numpy no disponibles; se omite la generación de la gráfica.")
+        print("[WARN] matplotlib o numpy no disponibles; se omite la gráfica.")
         return
 
     timestamps = [datetime.strptime(ts, "%Y-%m-%dT%H:%M:%SZ") for ts, _, _ in readings]
@@ -314,19 +257,17 @@ def plot_readings(readings, plot_path):
     except Exception as e:
         print(f"[WARN] No se pudo guardar la gráfica: {e}", file=sys.stderr)
 
-
 # -------------------------
 # CLI y flujo principal
 # -------------------------
 def build_argparser():
     p = argparse.ArgumentParser(description="Adquisición de temperatura y LDR (simulación o serial).")
-    p.add_argument("--mode", choices=["sim", "serial"], default="sim", help="Modo de adquisición: sim (simulación) o serial")
+    p.add_argument("--mode", choices=["sim", "serial"], default="sim", help="Modo de adquisición")
     p.add_argument("--port", type=str, default=None, help="Puerto serial (ej: COM3 o /dev/ttyUSB0)")
     p.add_argument("--baud", type=int, default=115200, help="Baudrate para serial")
     p.add_argument("--duration", type=int, default=DEFAULT_DURATION, help="Duración total en segundos")
     p.add_argument("--interval", type=float, default=DEFAULT_INTERVAL, help="Intervalo entre muestras en segundos")
     return p
-
 
 def main():
     parser = build_argparser()
@@ -341,7 +282,7 @@ def main():
         "duration_seconds": args.duration,
         "sample_interval_s": args.interval,
         "script": os.path.basename(__file__),
-        "version": "1.0.1"
+        "version": "1.1.0"
     }
 
     save_environment(os.path.join(RESULTS_DIR, "environment.txt"))
@@ -351,12 +292,24 @@ def main():
 
     temps = [t for _, t, _ in readings]
     ldrs = [l for _, _, l in readings]
-    stats_temp = compute_basic_stats(temps)
-    stats_ldr = compute_basic_stats(ldrs)
+
+    # Calibración con primeras N muestras
+    N = 5
+    offset_temp = statistics.mean(temps[:N])
+    offset_ldr = statistics.mean(ldrs[:N])
+    temps_cal = [round(t - offset_temp, 3) for t in temps]
+    ldrs_cal = [round(l - offset_ldr, 3) for l in ldrs]
+
+    # Filtrado
+    temps_filt = moving_average_filter(temps_cal, window_size=5)
+    ldrs_filt = moving_average_filter(ldrs_cal, window_size=5)
+
+    stats_temp = compute_basic_stats(temps_filt)
+    stats_ldr = compute_basic_stats(ldrs_filt)
 
     csv_path = os.path.join(RESULTS_DIR, "raw_readings.csv")
     metadata_path = os.path.join(RESULTS_DIR, "metadata.json")
-    save_csv(readings, csv_path)
+    save_csv(readings, csv_path, temps_filt=temps_filt, ldrs_filt=ldrs_filt)
     save_metadata(config, stats_temp, stats_ldr, metadata_path)
 
     plot_path = os.path.join(RESULTS_DIR, "plot.png")
@@ -368,7 +321,6 @@ def main():
     print("Estadísticas LDR:", stats_ldr)
     print(f"Archivos generados en: {RESULTS_DIR}/")
     print("----------------\n")
-
 
 if __name__ == "__main__":
     main()
