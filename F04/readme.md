@@ -154,3 +154,9 @@ Ejecutar el código base para adquirir lecturas de temperatura y LDR durante 1 m
 - **Commits**: mensajes claros y del tipo `feat: añadir filtro media movil v1.1.0 — autor`.
 
 ---
+Actualizaciones del programa:
+- **Se actualiza a la versión 1.0.0 con las mejoras propuestas de la opción A**
+- **Corrección en save_environment: uso de matplotlib.__version__ en lugar de plt.__version__.**
+- **Implementación de Mejora A: filtrado por media móvil y calibración con offset inicial.**
+- **CSV extendido con columnas crudas y filtradas.**
+---
