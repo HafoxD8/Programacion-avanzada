@@ -10,4 +10,5 @@
 10/04/2006
 - **Reyes Casanova luis Khaled:**
 Se actualiza de run_acquisition_v1.3.0 a run_acquisition_v1.3.1
--
+- **Reyes Casanova Luis Khaled:**
+Se actualiza de run_acquisition_v1.3.2 a run_acquisition_v1.3.3
