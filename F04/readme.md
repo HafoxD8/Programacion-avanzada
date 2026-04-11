@@ -155,8 +155,19 @@ Ejecutar el código base para adquirir lecturas de temperatura y LDR durante 1 m
 
 ---
 Actualizaciones del programa:
+-**Versión 1.1.0**
 - **Se actualiza a la versión 1.0.0 con las mejoras propuestas de la opción A**
 - **Corrección en save_environment: uso de matplotlib.__version__ en lugar de plt.__version__.**
 - **Implementación de Mejora A: filtrado por media móvil y calibración con offset inicial.**
 - **CSV extendido con columnas crudas y filtradas.**
+- **versión 1.2.0**
+- **Mejora A1: filtrado por media móvil y calibración con offset inicial.**
+- **Mejora A2: filtrado por mediana deslizante y normalización de rango [0–1].**
+- **CSV extendido con columnas crudas, filtradas, medianas y normalizadas.**
+- **Corrección en save_environment: uso de matplotlib.__version__ en lugar de plt.__version__.**
+- **Versión 1.3.0**
+- **Mejora A1: media móvil + offset inicial.**
+- **Mejora A2: mediana deslizante + normalización.**
+- **Mejora A3: suavizado exponencial adaptativo (EMA).**
+- **CSV extendido con columnas crudas, filtradas, medianas, normalizadas y EMA.**
 ---
