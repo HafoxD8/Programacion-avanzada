@@ -1,4 +1,2 @@
-timestamp: 2026-04-10T19:33:39Z
-python: 3.14.4 (tags/v3.14.4:23116f9, Apr  7 2026, 14:10:54) [MSC v.1944 64 bit (AMD64)]
-matplotlib: 3.10.8
-numpy: 2.4.4
+Python: 3.12.11 | packaged by conda-forge | (main, Jun  4 2025, 14:29:09) [MSC v.1943 64 bit (AMD64)]
+Matplotlib: 3.10.8
