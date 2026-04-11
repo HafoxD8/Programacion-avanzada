@@ -15,3 +15,8 @@ run_acquisition_v1.3.1:
 
 <img width="640" height="480" alt="plot" src="https://github.com/user-attachments/assets/45ade99f-757a-4793-8724-0006b42e9d78" />
 
+run_acquisition_v1.3.3:
+
+<img width="1633" height="882" alt="plot" src="https://github.com/user-attachments/assets/959b647e-81eb-4823-a3d6-501bdd5410ff" />
+
+
