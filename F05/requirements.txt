@@ -1,0 +1,6 @@
+Chat punto a punto por medio de Wifi:
+
+Estos son los siguientes requerimientos para poder realizar la actividad del chat punto a punto por medio de Wifi, se recomienda tener lo siguiente:
+
+1. IDE de python instalado en computadora (puede ser Spyder 6 u otro IDE)
+2. Python 3+ instalado en celular (en caso de usar dicho dispositivo)
