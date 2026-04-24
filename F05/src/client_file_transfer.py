@@ -1,12 +1,14 @@
-# Versión 1.0.0
+# Versión 1.0.1
 # Autor - Jesús Osvaldo Yáñez Mancilla
 #Este programa se diferencia de los anteriores debido a que implementa la opcion de transferencia de datos
 import socket
 import os
+
 # Crea el socket TCP
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
 # Conexión al servidor
-SERVER_IP = '192.168.1.100' # NOTA: cambiar por la ip del servidor
+SERVER_IP = '192.168.1.100'
 PORT = 5050
 
 client.connect((SERVER_IP, PORT))
@@ -18,19 +20,19 @@ while True:
 
     opcion = input("Elige una opción: ")
 
-    # OPCIÓN 1: Enviar texto
+    # ENVIAR TEXTO
 
     if opcion == "1":
         msg = input("Tú: ")
         client.send(f"TXT|{msg}|0".encode())
 
-    # OPCIÓN 2: Enviar archivo
 
+    # ENVIAR ARCHIVO
     elif opcion == "2":
-        filename = input("Nombre del archivo (con ruta si es necesario): ") # Escribir la ruta del archivo
+        filename = input("Nombre del archivo (con ruta si es necesario): ")
         size = os.path.getsize(filename)
 
-        client.send(f"FILE|{os.path.basename(filename)}|{size}".encode()) # Enviar el archivo
+        client.send(f"FILE|{os.path.basename(filename)}|{size}".encode())
 
         with open(filename, "rb") as f:
             while (chunk := f.read(1024)):
@@ -39,8 +41,13 @@ while True:
         print("Archivo enviado.")
 
     # RECIBIR RESPUESTA DEL SERVIDOR
+  
+    header = client.recv(1024).decode(errors="ignore")
 
-    header = client.recv(1024).decode()
+    if not header:
+        print("Servidor desconectado.")
+        break
+
     tipo, nombre, tam = header.split("|")
     tam = int(tam)
 
@@ -50,7 +57,9 @@ while True:
     elif tipo == "FILE":
         print(f"Recibiendo archivo: {nombre} ({tam} bytes)")
 
-        with open("recibido_" + nombre, "wb") as f:
+        ruta = os.path.join(os.getcwd(), "recibido_" + nombre)
+
+        with open(ruta, "wb") as f:
             recibido = 0
             while recibido < tam:
                 data = client.recv(1024)
@@ -58,3 +67,4 @@ while True:
                 recibido += len(data)
 
         print("Archivo recibido correctamente.")
+        print("Guardado en:", ruta)
