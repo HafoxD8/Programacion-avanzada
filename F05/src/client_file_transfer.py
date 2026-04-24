@@ -1,49 +1,75 @@
-# Versión 1.0.1
+# Versión 1.2.0
 # Autor - Jesús Osvaldo Yáñez Mancilla
-#Este programa se diferencia de los anteriores debido a que implementa la opcion de transferencia de datos
+# De igual forma que el porgrama del servidor, aqui se agregan nuevas funciones para evitar los bugs que ocurrian en la versión anterior.
+# Cabe aclarar que este programa sirve en android, usando Pydroid IDE.
 import socket
 import os
 
-# Crea el socket TCP
-client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-# Conexión al servidor
-SERVER_IP = '192.168.1.100'
+SERVER_IP = "192.168.1.100"  #NOTA: Colocar aqui la IP correspondiente al servidor
 PORT = 5050
 
+# Comando para la definición de lectura de bytes ( usado para evitar el bug correspondiente a la lectura de archivos y texto.
+def recv_line(sock):
+    """Lee una línea terminada en \n."""
+    line = b""
+    while not line.endswith(b"\n"):
+        chunk = sock.recv(1)
+        if not chunk:
+            return None
+        line += chunk
+    return line.decode().strip()
+
+def recv_exact(sock, n):
+    """Recibe exactamente n bytes."""
+    data = b""
+    while len(data) < n:
+        packet = sock.recv(n - len(data))
+        if not packet:
+            return None
+        data += packet
+    return data
+
+client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client.connect((SERVER_IP, PORT))
 print("Conectado al servidor.\n")
 
 while True:
-    print("\n1) Enviar texto")
+    print("\n--- CLIENTE ---")
+    print("1) Enviar texto")
     print("2) Enviar archivo")
-
     opcion = input("Elige una opción: ")
 
     # ENVIAR TEXTO
-
     if opcion == "1":
         msg = input("Tú: ")
-        client.send(f"TXT|{msg}|0".encode())
-
+        header_out = f"TXT|{msg}|0\n"
+        client.sendall(header_out.encode())
 
     # ENVIAR ARCHIVO
     elif opcion == "2":
-        filename = input("Nombre del archivo (con ruta si es necesario): ")
-        size = os.path.getsize(filename)
+        ruta = input("Nombre del archivo (con ruta si es necesario): ").strip()
+        if not os.path.isfile(ruta):
+            print("Archivo no encontrado.")
+            continue
 
-        client.send(f"FILE|{os.path.basename(filename)}|{size}".encode())
+        size = os.path.getsize(ruta)
+        nombre_arch = os.path.basename(ruta)
 
-        with open(filename, "rb") as f:
-            while (chunk := f.read(1024)):
-                client.send(chunk)
+        header_out = f"FILE|{nombre_arch}|{size}\n"
+        client.sendall(header_out.encode())
+
+        with open(ruta, "rb") as f:
+            while True:
+                chunk = f.read(1024)
+                if not chunk:
+                    break
+                client.sendall(chunk)
 
         print("Archivo enviado.")
 
     # RECIBIR RESPUESTA DEL SERVIDOR
-  
-    header = client.recv(1024).decode(errors="ignore")
-
+    header = recv_line(client)
     if not header:
         print("Servidor desconectado.")
         break
@@ -57,14 +83,14 @@ while True:
     elif tipo == "FILE":
         print(f"Recibiendo archivo: {nombre} ({tam} bytes)")
 
-        ruta = os.path.join(os.getcwd(), "recibido_" + nombre)
+        data = recv_exact(client, tam)
+        if data is None:
+            print("Error recibiendo archivo, conexión cerrada.")
+            break
 
-        with open(ruta, "wb") as f:
-            recibido = 0
-            while recibido < tam:
-                data = client.recv(1024)
-                f.write(data)
-                recibido += len(data)
+        # Guarda en la carpeta actual de Pydroid
+        filename = "recibido_" + nombre
+        with open(filename, "wb") as f:
+            f.write(data)
 
-        print("Archivo recibido correctamente.")
-        print("Guardado en:", ruta)
+        print("Archivo recibido y guardado como:", filename)
