@@ -21,3 +21,13 @@ version 1.0.1
 [2026-04-24 18:35:45] WARN  [Socket] Timeout reached: No data received from client in 30s.
 [2026-04-24 18:35:45] ERROR [Transfer] Stream aborted by peer.
 [2026-04-24 18:35:45] INFO  [System] Resetting socket for new connection attempts...
+
+version 1.0.2
+[2026-04-24 18:50:01] INFO  [TransferService v1.2.0] System Ready. Buffer size set to 4096 bytes.
+[2026-04-24 18:50:15] INFO  [Network] Connection established with Client (192.168.137.42).
+[2026-04-24 18:50:16] DEBUG [FileIO] Opening 'proyecto_final.zip' for streaming. Total size: 15.4 MB.
+[2026-04-24 18:50:16] INFO  [Transfer] Starting data stream...
+[2026-04-24 18:50:25] DEBUG [Socket] Progress: [##########..........] 50% - Chunks sent: 1972.
+[2026-04-24 18:50:40] INFO  [Transfer] Stream completed. All chunks sent successfully.
+[2026-04-24 18:50:41] INFO  [System] Waiting for client final ACK...
+[2026-04-24 18:50:41] INFO  [Server] Session closed gracefully.
