@@ -1,102 +1,51 @@
-# Versión 1.2.0
-# Autor - Jesús Osvaldo Yáñez Mancilla
-# La  versión anterior fue modificada para arreglar los bugs que tenian las versiones anteriores, agregando nuevas características para lograr esto.
+# Versión 1.3.0
+# Autor - Reyes Casanova Luis Khaled
+# La  versión anterior fue modificada para arreglar el error de cerrar el servidor con ctrl + c,
+#se agrega utf-8 para solucionar problemas con ñ y se añadio la opcion de salida por parte del cliente
 import socket
-import os
 
-#Definicion de puerto e IP
-HOST = '0.0.0.0'
-PORT = 5050
+# Configuración inicial
+IP = '0.0.0.0'
+PUERTO = 5050
 
-#comando para definir la lectura de bytes
-def recv_line(conn):
-    """Lee una línea terminada en \n."""
-    line = b""
-    while not line.endswith(b"\n"):
-        chunk = conn.recv(1)
-        if not chunk:
-            return None
-        line += chunk
-    return line.decode().strip()
-
-def recv_exact(conn, n):
-    """Recibe exactamente n bytes."""
-    data = b""
-    while len(data) < n:
-        packet = conn.recv(n - len(data))
-        if not packet:
-            return None
-        data += packet
-    return data
-    
-#Creación del socket
+# Creamos el socket TCP/IP
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-server.bind((HOST, PORT))
-server.listen(1)
 
-print(f"Servidor activo en puerto {PORT}, esperando conexión...")
-conn, addr = server.accept()
-print(f"Cliente conectado desde: {addr}")
+try:
+    # Asociamos IP y puerto
+    server.bind((IP, PUERTO))
+    server.listen(1)
+    print(f" Servidor activo en el puerto {PUERTO}. Esperando conexión...")
 
-while True:
-    # 1) RECIBIR ENCABEZADO (SIEMPRE TEXTO)
-    header = recv_line(conn)
-    if not header:
-        print("Cliente desconectado.")
-        break
+    conn, addr = server.accept()
+    print(f" Conectado exitosamente con: {addr}")
 
-    # Formato: TIPO|NOMBRE|TAM
-    tipo, nombre, tam = header.split("|")
-    tam = int(tam)
-
-    # 2) PROCESAR SEGÚN TIPO
-    if tipo == "TXT":
-        # Para texto, 'nombre' es el mensaje
-        print(f"Cliente dice: {nombre}")
-
-    elif tipo == "FILE":
-        print(f"Recibiendo archivo: {nombre} ({tam} bytes)")
-
-        data = recv_exact(conn, tam)
-        if data is None:
-            print("Error recibiendo archivo, conexión cerrada.")
+    while True:
+        # 1. Recibir mensaje del cliente
+        data = conn.recv(1024)
+        if not data:
+            print("\n El cliente ha cerrado la conexión.")
             break
+        
+        mensaje_cliente = data.decode('utf-8')
+        print(f"Cliente: {mensaje_cliente}")
 
-        filename = "recibido_" + nombre
-        with open(filename, "wb") as f:
-            f.write(data)
+        # 2. Enviar respuesta del servidor
+        respuesta = input("Servidor (escribe 'salir' para finalizar): ")
+        
+        if respuesta.lower() == 'salir':
+            conn.send("El servidor ha finalizado la sesión.".encode('utf-8'))
+            break
+            
+        conn.send(respuesta.encode('utf-8'))
 
-        print(f"Archivo guardado como: {filename}")
-
-    # 3) MENÚ PARA RESPONDER
-    print("\n--- RESPUESTA DEL SERVIDOR ---")
-    print("1) Enviar texto")
-    print("2) Enviar archivo")
-    opcion = input("Elige una opción: ")
-
-    if opcion == "1":
-        msg = input("Servidor: ")
-        header_out = f"TXT|{msg}|0\n"
-        conn.sendall(header_out.encode())
-
-    elif opcion == "2":
-        ruta = input("Ruta del archivo a enviar: ").strip()
-        if not os.path.isfile(ruta):
-            print("Archivo no encontrado.")
-            continue
-
-        size = os.path.getsize(ruta)
-        nombre_arch = os.path.basename(ruta)
-
-        header_out = f"FILE|{nombre_arch}|{size}\n"
-        conn.sendall(header_out.encode())
-
-        with open(ruta, "rb") as f:
-            while True:
-                chunk = f.read(1024)
-                if not chunk:
-                    break
-                conn.sendall(chunk)
-
-        print("Archivo enviado.")
+except KeyboardInterrupt:
+    print("\n Servidor interrumpido manualmente.")
+except Exception as e:
+    print(f" Ocurrió un error inesperado: {e}")
+finally:
+    # Nos aseguramos de cerrar todo al final
+    if 'conn' in locals():
+        conn.close()
+    server.close()
+    print(" Conexión cerrada. ¡Hasta pronto!")
