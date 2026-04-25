@@ -23,3 +23,13 @@ version 1.0.1
 [2026-04-24 18:35:16] ERROR [FileHandler] Failed to obtain Read-Uri permission for the selected path.
 [2026-04-24 18:35:16] WARN  [UI] Displaying Alert: "La aplicación no tiene permisos para acceder a archivos".
 [2026-04-24 18:35:16] FATAL [AppRuntime] Environment too restrictive. Execution halted to prevent crash.
+
+version 1.0.2
+[2026-04-24 18:50:15] INFO  [ClientApp v1.2.0] Handshake successful. Ready to receive.
+[2026-04-24 18:50:16] INFO  [Storage] Temporary buffer initialized: 4KB.
+[2026-04-24 18:50:16] DEBUG [DataHandler] Receiving Chunk 1... SUCCESS.
+[2026-04-24 18:50:32] DEBUG [DataHandler] Receiving Chunk 2500... SUCCESS.
+[2026-04-24 18:50:40] INFO  [FileHandler] Finalizing file write. Reassembling chunks...
+[2026-04-24 18:50:41] INFO  [Status] File 'proyecto_final.zip' received completely (Hash: MATCH).
+[2026-04-24 18:50:41] INFO  [Network] Sending final ACK to server.
+[2026-04-24 18:50:42] INFO  [UI] Notification: "¡Transferencia completada con éxito!".
