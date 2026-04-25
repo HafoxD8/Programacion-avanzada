@@ -1,0 +1,8 @@
+CHAT
+Cliente:
+[2026-04-24 18:10:44] INFO  [ClientApp] Attempting to connect to Server at 192.168.137.1:5000...
+[2026-04-24 18:10:45] INFO  [Socket] TCP Connection established successfully.
+[2026-04-24 18:11:02] DEBUG [Input] User entered text: "Hola desde el celular".
+[2026-04-24 18:11:02] INFO  [Network] Sending UTF-8 encoded string to Server.
+[2026-04-24 18:11:02] DEBUG [Socket] Sent 21 bytes. Waiting for server ACK...
+[2026-04-24 18:11:03] INFO  [Status] Message delivered and confirmed by server.
