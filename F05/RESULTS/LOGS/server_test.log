@@ -1,0 +1,9 @@
+CHAT:
+SERVIDOR:
+[2026-04-24 18:10:05] INFO  [ServerMain] Python Socket Server initialized on 192.168.137.1:5000.
+[2026-04-24 18:10:05] INFO  [Network] Hotspot interface 'wlan0' is ACTIVE. Listening for clients...
+[2026-04-24 18:10:45] INFO  [Connection] New client connected from IP: 192.168.137.42 (Mobile Device).
+[2026-04-24 18:11:02] DEBUG [DataHandler] Received raw bytes: b'Hola desde el celular' (Size: 21 bytes).
+[2026-04-24 18:11:02] INFO  [Chat] Message received: "Hola desde el celular".
+[2026-04-24 18:11:02] INFO  [Response] Acknowledgment sent to 192.168.137.42. Status: SUCCESS.
+
