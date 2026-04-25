@@ -7,3 +7,10 @@ SERVIDOR:
 [2026-04-24 18:11:02] INFO  [Chat] Message received: "Hola desde el celular".
 [2026-04-24 18:11:02] INFO  [Response] Acknowledgment sent to 192.168.137.42. Status: SUCCESS.
 
+TRANSEFENCIA:
+version 1.0.0
+[2026-04-24 18:20:10] INFO  [TransferService v1.0.0] Initializing file transfer stream...
+[2026-04-24 18:20:10] ERROR [FileSystem] Critical error: Cannot open 'documento_secreto.pdf'. Access Denied or File Not Found.
+[2026-04-24 18:20:10] FATAL [ServerMain] Unhandled Exception occurred. File I/O failed.
+[2026-04-24 18:20:10] FATAL [ServerMain] Closing socket connections...
+[2026-04-24 18:20:10] INFO  [System] Server process terminated with exit code 1.
