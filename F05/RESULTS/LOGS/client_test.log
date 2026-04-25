@@ -15,3 +15,11 @@ verion 1.0.0
 [2026-04-24 18:20:10] FATAL [ClientApp] Unexpected socket closure. Data stream interrupted.
 [2026-04-24 18:20:10] FATAL [ClientApp] Application crash imminent. Saving crash dump...
 [2026-04-24 18:20:11] INFO  [System] Client process terminated.
+
+version 1.0.1
+[2026-04-24 18:35:15] INFO  [AndroidApp v1.0.1] Connection established with Server.
+[2026-04-24 18:35:16] DEBUG [StoragePicker] User selected file: /storage/emulated/0/Download/proyecto.zip
+[2026-04-24 18:35:16] CRITICAL [OS_Kernel] Permission Denied: java.io.FileNotFoundException (Permission denied)
+[2026-04-24 18:35:16] ERROR [FileHandler] Failed to obtain Read-Uri permission for the selected path.
+[2026-04-24 18:35:16] WARN  [UI] Displaying Alert: "La aplicación no tiene permisos para acceder a archivos".
+[2026-04-24 18:35:16] FATAL [AppRuntime] Environment too restrictive. Execution halted to prevent crash.
