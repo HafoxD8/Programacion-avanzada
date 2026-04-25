@@ -14,3 +14,10 @@ version 1.0.0
 [2026-04-24 18:20:10] FATAL [ServerMain] Unhandled Exception occurred. File I/O failed.
 [2026-04-24 18:20:10] FATAL [ServerMain] Closing socket connections...
 [2026-04-24 18:20:10] INFO  [System] Server process terminated with exit code 1.
+
+version 1.0.1
+[2026-04-24 18:35:10] INFO  [FileServer v1.0.1] Server listening on 192.168.137.1:5000.
+[2026-04-24 18:35:15] INFO  [Network] Client 192.168.137.42 connected.
+[2026-04-24 18:35:45] WARN  [Socket] Timeout reached: No data received from client in 30s.
+[2026-04-24 18:35:45] ERROR [Transfer] Stream aborted by peer.
+[2026-04-24 18:35:45] INFO  [System] Resetting socket for new connection attempts...
