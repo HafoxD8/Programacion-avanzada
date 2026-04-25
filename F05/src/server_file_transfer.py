@@ -1,51 +1,66 @@
-# Versión 1.3.0
-# Autor - Reyes Casanova Luis Khaled
-# La  versión anterior fue modificada para arreglar el error de cerrar el servidor con ctrl + c,
-#se agrega utf-8 para solucionar problemas con ñ y se añadio la opcion de salida por parte del cliente
+# Versión 1.4.0
+# Autor - Cruz Molina Hafid
+# Este código creará automáticamente la carpeta results/received/ si no existe, y se hace uso de las librerías solicitadas
+
 import socket
+import os
+import hashlib
 
-# Configuración inicial
+def calcular_sha256(ruta_archivo):
+    sha256_hash = hashlib.sha256()
+    with open(ruta_archivo, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
+
 IP = '0.0.0.0'
-PUERTO = 5050
+PORT = 5050
+OUTPUT_DIR = "results/received/"
 
-# Creamos el socket TCP/IP
+if not os.path.exists(OUTPUT_DIR):
+    os.makedirs(OUTPUT_DIR)
+
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+server.bind((IP, PORT))
+server.listen(1)
+
+print(f"Servidor listo para recibir archivos en el puerto {PORT}...")
 
 try:
-    # Asociamos IP y puerto
-    server.bind((IP, PUERTO))
-    server.listen(1)
-    print(f" Servidor activo en el puerto {PUERTO}. Esperando conexión...")
-
-    conn, addr = server.accept()
-    print(f" Conectado exitosamente con: {addr}")
-
     while True:
-        # 1. Recibir mensaje del cliente
-        data = conn.recv(1024)
-        if not data:
-            print("\n El cliente ha cerrado la conexión.")
-            break
-        
-        mensaje_cliente = data.decode('utf-8')
-        print(f"Cliente: {mensaje_cliente}")
+        conn, addr = server.accept()
+        print(f"\nConexión desde {addr}")
 
-        # 2. Enviar respuesta del servidor
-        respuesta = input("Servidor (escribe 'salir' para finalizar): ")
+        # 1. Recibir encabezado (FILENAME|SIZE|SHA256\n)
+        header = conn.recv(1024).decode('utf-8').strip()
+        if not header: continue
         
-        if respuesta.lower() == 'salir':
-            conn.send("El servidor ha finalizado la sesión.".encode('utf-8'))
-            break
-            
-        conn.send(respuesta.encode('utf-8'))
+        filename, size, expected_hash = header.split('|')
+        size = int(size)
+        file_path = os.path.join(OUTPUT_DIR, filename)
 
-except KeyboardInterrupt:
-    print("\n Servidor interrumpido manualmente.")
-except Exception as e:
-    print(f" Ocurrió un error inesperado: {e}")
-finally:
-    # Nos aseguramos de cerrar todo al final
-    if 'conn' in locals():
+        # 2. Responder READY
+        print(f"Recibiendo: {filename} ({size} bytes)")
+        conn.send("READY".encode('utf-8'))
+
+        # 3. Recibir contenido en bloques
+        bytes_recibidos = 0
+        with open(file_path, "wb") as f:
+            while bytes_recibidos < size:
+                chunk = conn.recv(4096)
+                if not chunk: break
+                f.write(chunk)
+                bytes_recibidos += len(chunk)
+
+        # 4. Calcular checksum y responder OK o ERR
+        actual_hash = calcular_sha256(file_path)
+        if actual_hash == expected_hash:
+            print("Archivo recibido íntegramente. SHA256 coincide.")
+            conn.send("OK".encode('utf-8'))
+        else:
+            print("¡ERROR! El Checksum no coincide.")
+            conn.send("ERR".encode('utf-8'))
+        
         conn.close()
+finally:
     server.close()
-    print(" Conexión cerrada. ¡Hasta pronto!")
